@@ -21,8 +21,6 @@
                 <h3>朝活報告フォーム</h3>
             </div>
             <div class="card-body">
-                <p id="debug-info" class="text-muted small text-center"></p>
-
                 <!-- Step 1: 入力フォーム -->
                 <div id="step-input">
                     <p class="text-center">今日の成果を記入して、送信してください(任意)</p>
@@ -124,20 +122,12 @@
         liff.init({
             liffId: liffId
         }).then(() => {
-            try {
-                var inClient = liff.isInClient();
-                var loggedIn = liff.isLoggedIn();
-                $('#debug-info').text('isInClient=' + inClient + ', isLoggedIn=' + loggedIn);
-                isLiffReady = inClient || loggedIn;
-                if (!isLiffReady) {
-                    showPcMode();
-                }
-            } catch (e) {
-                $('#debug-info').text('post-init error: ' + e);
+            isLiffReady = liff.isInClient() || liff.isLoggedIn();
+            if (!isLiffReady) {
                 showPcMode();
             }
         }).catch((err) => {
-            $('#debug-info').text('LIFF init error: ' + err);
+            console.log('LIFF Initialization failed ', err);
             showPcMode();
         });
     }
