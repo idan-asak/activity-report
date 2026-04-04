@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
+    <style>
+        .sns-btn { width: 100%; margin-bottom: 10px; }
+        .sns-section { display: none; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
@@ -15,31 +21,84 @@
                 <h3>朝活報告フォーム</h3>
             </div>
             <div class="card-body">
-                <p class="text-center">今日の成果を記入して、送信してください(任意)</p>
-                <form id="goalForm" class="w-75 mx-auto">
-                    <p class="mt-3"><strong>今日の積み上げ</strong></p>
-                    
-                    <!-- 以下の4つの入力フィールドを統合し、1つに -->
-                    <div>
-                       <textarea class="form-control w-100 mt-2" name="goal" placeholder="例:&#13;&#10;・読書&#13;&#10;・ブログ作成" rows="4" required></textarea>
-                    </div>
 
-                    <p class="mt-4"><strong>一言</strong></p>
-                    <p class="mt-n1">※朝活の感想や他の人に向けたコメントを入れてください（空欄可）</p>
-                    <div>
-                        <input class="form-control w-100 mt-2" name="comment" placeholder="例: 今日も朝活を頑張れました！" />
+                <!-- Step 1: 入力フォーム -->
+                <div id="step-input">
+                    <p class="text-center">今日の成果を記入して、送信してください(任意)</p>
+                    <form id="goalForm" class="w-75 mx-auto">
+                        <p class="mt-3"><strong>今日の積み上げ</strong></p>
+                        <div>
+                           <textarea class="form-control w-100 mt-2" name="goal" placeholder="例:&#13;&#10;・読書&#13;&#10;・ブログ作成" rows="4" required></textarea>
+                        </div>
+
+                        <p class="mt-4"><strong>一言</strong></p>
+                        <p class="mt-n1">※朝活の感想や他の人に向けたコメントを入れてください（空欄可）</p>
+                        <div>
+                            <input class="form-control w-100 mt-2" name="comment" placeholder="例: 今日も朝活を頑張れました！" />
+                        </div>
+
+                        <div class="text-center">
+                            <input type="submit" class="mt-4 btn btn-primary btn-lg" value="コミュニティに報告する">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 2: SNS共有選択 -->
+                <div id="step-sns" class="sns-section">
+                    <div class="text-center mb-3">
+                        <i class="fa fa-check-circle text-success" style="font-size: 48px;"></i>
+                        <h4 class="mt-2">コミュニティに報告しました！</h4>
+                        <p class="text-muted">SNSにもシェアしませんか？</p>
                     </div>
-                    
-                    <div class="text-center">
-                        <input type="submit" class="mt-4 btn btn-primary btn-lg" value="コミュニティに報告する">
-                    </div>
-                    <div class="text-center mt-3">
-                        <button id="postToX" class="btn btn-dark btn-lg">
-                            <i class="fa fa-twitter"></i> Xにもポストする
+                    <div class="w-75 mx-auto">
+                        <button id="shareX" class="btn btn-dark btn-lg sns-btn">
+                            <i class="fa fa-twitter"></i> X（Twitter）にポスト
                         </button>
-                        <p class="text-muted mt-2 small">※ Xアプリが開きます。お好みで編集して投稿してください</p>
+                        <!-- 将来のSNS拡張用 -->
+                        <!--
+                        <button id="shareInstagram" class="btn btn-lg sns-btn" style="background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white;">
+                            <i class="fa fa-instagram"></i> Instagramにシェア
+                        </button>
+                        <button id="shareThreads" class="btn btn-lg sns-btn" style="background: #000; color: white;">
+                            Threadsにシェア
+                        </button>
+                        -->
+                        <button id="skipSns" class="btn btn-outline-secondary btn-lg sns-btn mt-2">
+                            スキップして閉じる
+                        </button>
                     </div>
-                </form>
+                </div>
+
+                <!-- PC用: コミュニティ報告なしでSNS投稿のみ -->
+                <div id="step-pc-sns" class="sns-section">
+                    <p class="text-center">今日の成果を記入して、SNSに投稿しましょう</p>
+                    <form id="pcForm" class="w-75 mx-auto">
+                        <p class="mt-3"><strong>今日の積み上げ</strong></p>
+                        <div>
+                           <textarea class="form-control w-100 mt-2" name="goal" placeholder="例:&#13;&#10;・読書&#13;&#10;・ブログ作成" rows="4" required></textarea>
+                        </div>
+
+                        <p class="mt-4"><strong>一言</strong></p>
+                        <p class="mt-n1">※朝活の感想や他の人に向けたコメントを入れてください（空欄可）</p>
+                        <div>
+                            <input class="form-control w-100 mt-2" name="comment" placeholder="例: 今日も朝活を頑張れました！" />
+                        </div>
+
+                        <div class="w-75 mx-auto mt-4">
+                            <button id="pcShareX" class="btn btn-dark btn-lg sns-btn">
+                                <i class="fa fa-twitter"></i> X（Twitter）にポスト
+                            </button>
+                            <!-- 将来のSNS拡張用 -->
+                            <!--
+                            <button id="pcShareInstagram" class="btn btn-lg sns-btn" style="background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white;">
+                                <i class="fa fa-instagram"></i> Instagramにシェア
+                            </button>
+                            -->
+                        </div>
+                        <p class="text-muted text-center mt-2 small">※ コミュニティへの報告はLINEアプリから行ってください</p>
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>
@@ -48,7 +107,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
-    <script src="https://platform.twitter.com/widgets.js"></script>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
 
 <script>
@@ -58,6 +116,8 @@
     });
 
     let isLiffLoggedIn = false;
+    let savedGoal = '';
+    let savedComment = '';
 
     function initializeLiff(liffId) {
         liff.init({
@@ -66,65 +126,106 @@
             isLiffLoggedIn = liff.isLoggedIn();
             initializeApp();
             if (!isLiffLoggedIn) {
-                // LIFF外（PCブラウザ等）ではコミュニティ報告ボタンを無効化
-                $('input[type="submit"]').val('※ LINEアプリから開いてください').prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary');
+                showPcMode();
             }
         }).catch((err) => {
             console.log('LIFF Initialization failed ', err);
-            // LIFF初期化失敗時もXボタンは使えるようにする
-            $('input[type="submit"]').val('※ LINEアプリから開いてください').prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary');
+            showPcMode();
         });
     }
+
+    function showPcMode() {
+        $('#step-input').hide();
+        $('#step-pc-sns').show().addClass('fade-in');
+    }
+
+    function buildSnsText(goal, comment) {
+        let text = goal.trim();
+        if (comment.trim()) {
+            text += '\n\n' + comment.trim();
+        }
+        text += '\n\n#朝活 #今日の積み上げ #朝活プラント';
+        return text;
+    }
+
+    function openXIntent(goal, comment) {
+        const text = buildSnsText(goal, comment);
+        const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+        window.open(url, '_blank');
+    }
+
+    // 将来のSNS拡張用テンプレート
+    // function openInstagram(goal, comment) {
+    //     // Instagramはweb intent非対応のため、テキストをクリップボードにコピーしてアプリに誘導
+    //     const text = buildSnsText(goal, comment);
+    //     navigator.clipboard.writeText(text).then(() => {
+    //         window.alert('投稿内容をコピーしました。Instagramアプリを開いて貼り付けてください。');
+    //     });
+    // }
 
     function sendText(text) {
         liff.sendMessages([{
             'type': 'text',
             'text': text
         }]).then(function () {
-            liff.closeWindow();
+            // コミュニティ報告後、SNS共有画面を表示
+            showSnsStep();
         }).catch(function (error) {
             window.alert('Failed to send message ' + error);
         });
     }
 
+    function showSnsStep() {
+        $('#step-input').hide();
+        $('#step-sns').show().addClass('fade-in');
+    }
+
     $(function () {
-        $('form').submit(function (event) {
+        // Step 1: コミュニティ報告（LINE内のみ）
+        $('#goalForm').submit(function (event) {
             event.preventDefault();
             if (!isLiffLoggedIn) {
                 window.alert('コミュニティへの報告はLINEアプリから開いてください');
                 return;
             }
-            const goal = $('textarea[name="goal"]').val();
-            const comment = $('input[name="comment"]').val();
+            savedGoal = $('textarea[name="goal"]').val();
+            savedComment = $('input[name="comment"]').val();
 
             let msg;
-            if (comment.trim()) {
-                msg = `【今日の積み上げ】\n ${goal}\n\n【一言】\n ${comment}`;
+            if (savedComment.trim()) {
+                msg = '【今日の積み上げ】\n ' + savedGoal + '\n\n【一言】\n ' + savedComment;
             } else {
-                msg = `【今日の積み上げ】\n ${goal}`;
+                msg = '【今日の積み上げ】\n ' + savedGoal;
             }
 
             sendText(msg);
         });
 
-        $('#postToX').click(function (event) {
+        // Step 2: SNS共有ボタン（コミュニティ報告後）
+        $('#shareX').click(function (event) {
             event.preventDefault();
-            const goal = $('textarea[name="goal"]').val();
-            const comment = $('input[name="comment"]').val();
+            openXIntent(savedGoal, savedComment);
+        });
 
+        $('#skipSns').click(function (event) {
+            event.preventDefault();
+            if (isLiffLoggedIn) {
+                liff.closeWindow();
+            } else {
+                window.close();
+            }
+        });
+
+        // PC用: 直接SNS投稿
+        $('#pcShareX').click(function (event) {
+            event.preventDefault();
+            const goal = $('#pcForm textarea[name="goal"]').val();
+            const comment = $('#pcForm input[name="comment"]').val();
             if (!goal.trim()) {
-                window.alert('「今日の積み上げ」を入力してからXにポストしてください');
+                window.alert('「今日の積み上げ」を入力してください');
                 return;
             }
-
-            let postContent = goal.trim();
-            if (comment.trim()) {
-                postContent += `\n\n${comment.trim()}`;
-            }
-            postContent += `\n\n#朝活 #今日の積み上げ #朝活プラント`;
-
-            const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(postContent)}`;
-            window.open(tweetUrl, '_blank');
+            openXIntent(goal, comment);
         });
     });
 </script>
