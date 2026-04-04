@@ -21,6 +21,7 @@
                 <h3>朝活報告フォーム</h3>
             </div>
             <div class="card-body">
+                <p id="debug-info" class="text-muted small text-center"></p>
 
                 <!-- Step 1: 入力フォーム -->
                 <div id="step-input">
@@ -123,14 +124,16 @@
         liff.init({
             liffId: liffId
         }).then(() => {
-            // isInClient(): LINEアプリ内で開かれているか判定（isLoggedInより確実）
-            isLiffReady = liff.isInClient() || liff.isLoggedIn();
+            var inClient = liff.isInClient();
+            var loggedIn = liff.isLoggedIn();
+            $('#debug-info').text('isInClient=' + inClient + ', isLoggedIn=' + loggedIn);
+            isLiffReady = inClient || loggedIn;
             initializeApp();
             if (!isLiffReady) {
                 showPcMode();
             }
         }).catch((err) => {
-            console.log('LIFF Initialization failed ', err);
+            $('#debug-info').text('LIFF init error: ' + err);
             showPcMode();
         });
     }
