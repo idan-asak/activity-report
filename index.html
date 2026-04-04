@@ -57,13 +57,22 @@
         initializeLiff(liffId);
     });
 
+    let isLiffLoggedIn = false;
+
     function initializeLiff(liffId) {
         liff.init({
             liffId: liffId
         }).then(() => {
+            isLiffLoggedIn = liff.isLoggedIn();
             initializeApp();
+            if (!isLiffLoggedIn) {
+                // LIFF外（PCブラウザ等）ではコミュニティ報告ボタンを無効化
+                $('input[type="submit"]').val('※ LINEアプリから開いてください').prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary');
+            }
         }).catch((err) => {
             console.log('LIFF Initialization failed ', err);
+            // LIFF初期化失敗時もXボタンは使えるようにする
+            $('input[type="submit"]').val('※ LINEアプリから開いてください').prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary');
         });
     }
 
@@ -81,6 +90,10 @@
     $(function () {
         $('form').submit(function (event) {
             event.preventDefault();
+            if (!isLiffLoggedIn) {
+                window.alert('コミュニティへの報告はLINEアプリから開いてください');
+                return;
+            }
             const goal = $('textarea[name="goal"]').val();
             const comment = $('input[name="comment"]').val();
 
