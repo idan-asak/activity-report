@@ -115,7 +115,7 @@
         initializeLiff(liffId);
     });
 
-    let isLiffLoggedIn = false;
+    let isLiffReady = false;
     let savedGoal = '';
     let savedComment = '';
 
@@ -123,9 +123,10 @@
         liff.init({
             liffId: liffId
         }).then(() => {
-            isLiffLoggedIn = liff.isLoggedIn();
+            // isInClient(): LINEアプリ内で開かれているか判定（isLoggedInより確実）
+            isLiffReady = liff.isInClient() || liff.isLoggedIn();
             initializeApp();
-            if (!isLiffLoggedIn) {
+            if (!isLiffReady) {
                 showPcMode();
             }
         }).catch((err) => {
@@ -184,7 +185,7 @@
         // Step 1: コミュニティ報告（LINE内のみ）
         $('#goalForm').submit(function (event) {
             event.preventDefault();
-            if (!isLiffLoggedIn) {
+            if (!isLiffReady) {
                 window.alert('コミュニティへの報告はLINEアプリから開いてください');
                 return;
             }
@@ -209,7 +210,7 @@
 
         $('#skipSns').click(function (event) {
             event.preventDefault();
-            if (isLiffLoggedIn) {
+            if (isLiffReady) {
                 liff.closeWindow();
             } else {
                 window.close();
