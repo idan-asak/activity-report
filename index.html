@@ -124,12 +124,16 @@
         liff.init({
             liffId: liffId
         }).then(() => {
-            var inClient = liff.isInClient();
-            var loggedIn = liff.isLoggedIn();
-            $('#debug-info').text('isInClient=' + inClient + ', isLoggedIn=' + loggedIn);
-            isLiffReady = inClient || loggedIn;
-            initializeApp();
-            if (!isLiffReady) {
+            try {
+                var inClient = liff.isInClient();
+                var loggedIn = liff.isLoggedIn();
+                $('#debug-info').text('isInClient=' + inClient + ', isLoggedIn=' + loggedIn);
+                isLiffReady = inClient || loggedIn;
+                if (!isLiffReady) {
+                    showPcMode();
+                }
+            } catch (e) {
+                $('#debug-info').text('post-init error: ' + e);
                 showPcMode();
             }
         }).catch((err) => {
