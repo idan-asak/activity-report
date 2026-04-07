@@ -138,17 +138,20 @@
     }
 
     function buildSnsText(goal, comment) {
-        let text = goal.trim();
+        let text = '#今日の積み上げ\n\n';
+        text += goal.trim();
         if (comment.trim()) {
             text += '\n\n' + comment.trim();
         }
-        text += '\n\n#朝活 #今日の積み上げ #朝活プラント';
+        text += '\n\n#朝活 #朝活プラント';
+        text += '\n📱 朝活プラントアプリから投稿';
         return text;
     }
 
     function openXIntent(goal, comment) {
         const text = buildSnsText(goal, comment);
-        const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+        const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text)
+            + '&url=' + encodeURIComponent('https://asa-plant.com/community-lp/');
         window.open(url, '_blank');
     }
 
