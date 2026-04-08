@@ -1,234 +1,258 @@
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>朝活報告</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
+    <title>活動報告</title>
     <style>
-        .sns-btn { width: 100%; margin-bottom: 10px; }
-        .sns-section { display: none; }
-        .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+        .container { width: 100%; max-width: 400px; margin-top: 10px; }
+        .card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .section-title {
+            font-size: 15px; font-weight: 700; color: #333; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .section-title .icon { font-size: 20px; }
+        .activity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .activity-btn {
+            padding: 10px 8px; border: 2px solid #e0e0e0; border-radius: 10px; background: #fafafa;
+            font-size: 14px; color: #555; cursor: pointer; text-align: center; transition: all 0.2s; user-select: none;
+        }
+        .activity-btn.selected { border-color: #667eea; background: #f0f2ff; color: #667eea; font-weight: 600; }
+        .custom-item {
+            padding: 10px 8px; border: 2px solid #e0e0e0; border-radius: 10px; background: #fafafa;
+            font-size: 14px; color: #555; cursor: pointer; text-align: center; transition: all 0.2s; user-select: none;
+            grid-column: span 2;
+        }
+        .custom-item.selected { border-color: #667eea; background: #f0f2ff; color: #667eea; font-weight: 600; }
+        .detail-input {
+            width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 10px;
+            font-size: 14px; color: #333; background: #fafafa; margin-top: 12px; resize: none;
+        }
+        .detail-input:focus { outline: none; border-color: #667eea; background: white; }
+        .hint { font-size: 11px; color: #999; margin-top: 4px; }
+        .btn-submit {
+            width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); letter-spacing: 1px;
+        }
+        .btn-submit:active { opacity: 0.8; }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-sns {
+            width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+            cursor: pointer; margin-bottom: 8px;
+        }
+        .btn-x { background: #000; color: white; }
+        .btn-skip { background: #f0f0f0; color: #666; }
+        .loading { text-align: center; padding: 60px 20px; color: white; font-size: 16px; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .success-msg { text-align: center; padding: 30px 20px; }
+        .success-msg .icon { font-size: 48px; margin-bottom: 12px; }
+        .success-msg p { color: #333; font-size: 16px; line-height: 1.6; }
+        .error-msg { text-align: center; padding: 40px 20px; }
+        .error-msg p { color: #666; font-size: 14px; line-height: 1.6; }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="card shadow-lg">
-            <div class="card-header bg-primary text-white text-center">
-                <h3>朝活報告フォーム</h3>
-            </div>
-            <div class="card-body">
-                <!-- Step 1: 入力フォーム -->
-                <div id="step-input">
-                    <p class="text-center">今日の成果を記入して、送信してください(任意)</p>
-                    <form id="goalForm" class="w-75 mx-auto">
-                        <p class="mt-3"><strong>今日の積み上げ</strong></p>
-                        <div>
-                           <textarea class="form-control w-100 mt-2" name="goal" placeholder="例:&#13;&#10;・読書&#13;&#10;・ブログ作成" rows="4" required></textarea>
-                        </div>
-
-                        <p class="mt-4"><strong>一言</strong></p>
-                        <p class="mt-n1">※朝活の感想や他の人に向けたコメントを入れてください（空欄可）</p>
-                        <div>
-                            <input class="form-control w-100 mt-2" name="comment" placeholder="例: 今日も朝活を頑張れました！" />
-                        </div>
-
-                        <div class="text-center">
-                            <input type="submit" class="mt-4 btn btn-primary btn-lg" value="コミュニティに報告する">
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Step 2: SNS共有選択 -->
-                <div id="step-sns" class="sns-section">
-                    <div class="text-center mb-3">
-                        <i class="fa fa-check-circle text-success" style="font-size: 48px;"></i>
-                        <h4 class="mt-2">コミュニティに報告しました！</h4>
-                        <p class="text-muted">SNSにもシェアしませんか？</p>
-                    </div>
-                    <div class="w-75 mx-auto">
-                        <button id="shareX" class="btn btn-dark btn-lg sns-btn">
-                            <i class="fa fa-twitter"></i> X（Twitter）にポスト
-                        </button>
-                        <!-- 将来のSNS拡張用 -->
-                        <!--
-                        <button id="shareInstagram" class="btn btn-lg sns-btn" style="background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white;">
-                            <i class="fa fa-instagram"></i> Instagramにシェア
-                        </button>
-                        <button id="shareThreads" class="btn btn-lg sns-btn" style="background: #000; color: white;">
-                            Threadsにシェア
-                        </button>
-                        -->
-                        <button id="skipSns" class="btn btn-outline-secondary btn-lg sns-btn mt-2">
-                            スキップして閉じる
-                        </button>
-                    </div>
-                </div>
-
-                <!-- PC用: コミュニティ報告なしでSNS投稿のみ -->
-                <div id="step-pc-sns" class="sns-section">
-                    <p class="text-center">今日の成果を記入して、SNSに投稿しましょう</p>
-                    <form id="pcForm" class="w-75 mx-auto">
-                        <p class="mt-3"><strong>今日の積み上げ</strong></p>
-                        <div>
-                           <textarea class="form-control w-100 mt-2" name="goal" placeholder="例:&#13;&#10;・読書&#13;&#10;・ブログ作成" rows="4" required></textarea>
-                        </div>
-
-                        <p class="mt-4"><strong>一言</strong></p>
-                        <p class="mt-n1">※朝活の感想や他の人に向けたコメントを入れてください（空欄可）</p>
-                        <div>
-                            <input class="form-control w-100 mt-2" name="comment" placeholder="例: 今日も朝活を頑張れました！" />
-                        </div>
-
-                        <div class="w-75 mx-auto mt-4">
-                            <button id="pcShareX" class="btn btn-dark btn-lg sns-btn">
-                                <i class="fa fa-twitter"></i> X（Twitter）にポスト
-                            </button>
-                            <!-- 将来のSNS拡張用 -->
-                            <!--
-                            <button id="pcShareInstagram" class="btn btn-lg sns-btn" style="background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white;">
-                                <i class="fa fa-instagram"></i> Instagramにシェア
-                            </button>
-                            -->
-                        </div>
-                        <p class="text-muted text-center mt-2 small">※ コミュニティへの報告はLINEアプリから行ってください</p>
-                    </form>
-                </div>
-
-            </div>
+    <div class="container" id="app">
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>読み込み中...</p>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
-    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        const LIFF_ID = "2006372055-O1K6qyZd";
+        const API_BASE = "https://api.asa-plant.com";
 
-<script>
-    $(document).ready(function () {
-        const liffId = "2006372055-O1K6qyZd";
-        initializeLiff(liffId);
-    });
+        const ACTIVITIES = [
+            { id: "読書", label: "📖 読書" },
+            { id: "勉強", label: "💻 勉強" },
+            { id: "運動", label: "💪 運動" },
+            { id: "副業", label: "✍️ 副業" },
+            { id: "創作", label: "🎨 創作" },
+            { id: "仕事", label: "💼 仕事" },
+        ];
 
-    let isLiffReady = false;
-    let savedGoal = '';
-    let savedComment = '';
+        let lineUserId = null;
+        let userProfile = null;
+        let isInClient = false;
 
-    function initializeLiff(liffId) {
-        liff.init({
-            liffId: liffId
-        }).then(() => {
-            isLiffReady = liff.isInClient() || liff.isLoggedIn();
-            if (!isLiffReady) {
+        async function init() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                isInClient = liff.isInClient();
+
+                if (!liff.isLoggedIn() && !isInClient) {
+                    showPcMode();
+                    return;
+                }
+
+                const profile = await liff.getProfile();
+                lineUserId = profile.userId;
+
+                // プロフィール取得
+                try {
+                    const resp = await fetch(`${API_BASE}/api/profile?line_user_id=${lineUserId}`);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data.found) userProfile = data;
+                    }
+                } catch (e) {}
+
+                renderReportForm();
+            } catch (e) {
                 showPcMode();
             }
-        }).catch((err) => {
-            console.log('LIFF Initialization failed ', err);
-            showPcMode();
-        });
-    }
-
-    function showPcMode() {
-        $('#step-input').hide();
-        $('#step-pc-sns').show().addClass('fade-in');
-    }
-
-    function buildSnsText(goal, comment) {
-        let text = '#今日の積み上げ\n\n';
-        text += goal.trim();
-        if (comment.trim()) {
-            text += '\n\n' + comment.trim();
         }
-        text += '\n\n#朝活 #朝活プラント';
-        text += '\n📱 朝活プラントアプリから投稿';
-        return text;
-    }
 
-    function openXIntent(goal, comment) {
-        const text = buildSnsText(goal, comment);
-        const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text)
-            + '&url=' + encodeURIComponent('https://asa-plant.com/community-lp/');
-        window.open(url, '_blank');
-    }
+        function showPcMode() {
+            document.getElementById("app").innerHTML = `
+                <div class="card">
+                    <div class="error-msg">
+                        <p>コミュニティへの報告はLINEアプリから開いてください</p>
+                    </div>
+                </div>`;
+        }
 
-    // 将来のSNS拡張用テンプレート
-    // function openInstagram(goal, comment) {
-    //     // Instagramはweb intent非対応のため、テキストをクリップボードにコピーしてアプリに誘導
-    //     const text = buildSnsText(goal, comment);
-    //     navigator.clipboard.writeText(text).then(() => {
-    //         window.alert('投稿内容をコピーしました。Instagramアプリを開いて貼り付けてください。');
-    //     });
-    // }
+        function renderReportForm() {
+            const app = document.getElementById("app");
 
-    function sendText(text) {
-        liff.sendMessages([{
-            'type': 'text',
-            'text': text
-        }]).then(function () {
-            // コミュニティ報告後、SNS共有画面を表示
-            showSnsStep();
-        }).catch(function (error) {
-            window.alert('Failed to send message ' + error);
-        });
-    }
+            // プロフィールからデフォルト選択を決定
+            const profileActivities = userProfile && userProfile.activities
+                ? userProfile.activities.split(",").map(s => s.trim()).filter(s => s) : [];
+            const profileFreeItems = userProfile && userProfile.free_text
+                ? userProfile.free_text.split(",").map(s => s.trim()).filter(s => s) : [];
 
-    function showSnsStep() {
-        $('#step-input').hide();
-        $('#step-sns').show().addClass('fade-in');
-    }
+            // 活動ボタン（プロフィール設定済みのものをデフォルトON）
+            let activityBtns = "";
+            ACTIVITIES.forEach(a => {
+                const sel = profileActivities.includes(a.id) ? "selected" : "";
+                activityBtns += `<div class="activity-btn ${sel}" data-id="${a.id}" onclick="toggleBtn(this)">${a.label}</div>`;
+            });
 
-    $(function () {
-        // Step 1: コミュニティ報告（LINE内のみ）
-        $('#goalForm').submit(function (event) {
-            event.preventDefault();
-            if (!isLiffReady) {
-                window.alert('コミュニティへの報告はLINEアプリから開いてください');
+            // カスタム活動（free_text）
+            let customBtns = "";
+            profileFreeItems.forEach(item => {
+                customBtns += `<div class="custom-item selected" data-id="${item}" onclick="toggleBtn(this)">${item}</div>`;
+            });
+
+            app.innerHTML = `
+                <div class="card">
+                    <div class="section-title"><span class="icon">📝</span> 今日の活動報告</div>
+                    <p style="font-size:13px; color:#666; margin-bottom:12px;">やったことをタップしてください</p>
+                    <div class="activity-grid" id="activityGrid">
+                        ${activityBtns}
+                        ${customBtns}
+                    </div>
+                    <textarea class="detail-input" id="detail" rows="2"
+                              placeholder="詳しく書く（任意）"></textarea>
+                    <p class="hint">報告後にXにもシェアできます</p>
+                </div>
+                <button class="btn-submit" id="submitBtn" onclick="submitReport()">報告する</button>
+            `;
+        }
+
+        function toggleBtn(el) {
+            el.classList.toggle("selected");
+        }
+
+        function getSelectedItems() {
+            return Array.from(document.querySelectorAll(".activity-btn.selected, .custom-item.selected")).map(b => b.dataset.id);
+        }
+
+        async function submitReport() {
+            const items = getSelectedItems();
+            const detail = document.getElementById("detail").value.trim();
+
+            if (items.length === 0 && !detail) {
+                alert("やったことを選択するか、詳しく書くに入力してください");
                 return;
             }
-            savedGoal = $('textarea[name="goal"]').val();
-            savedComment = $('input[name="comment"]').val();
 
-            let msg;
-            if (savedComment.trim()) {
-                msg = '【今日の積み上げ】\n ' + savedGoal + '\n\n【一言】\n ' + savedComment;
-            } else {
-                msg = '【今日の積み上げ】\n ' + savedGoal;
+            const btn = document.getElementById("submitBtn");
+            btn.disabled = true;
+            btn.textContent = "送信中...";
+
+            // メッセージ組み立て
+            let msg = "【今日の積み上げ】\n";
+            if (items.length > 0) {
+                msg += items.map(i => " ・" + i).join("\n");
+            }
+            if (detail) {
+                msg += "\n\n" + detail;
             }
 
-            sendText(msg);
-        });
+            try {
+                await liff.sendMessages([{ type: "text", text: msg }]);
+                showSnsStep(items, detail);
+            } catch (e) {
+                btn.disabled = false;
+                btn.textContent = "報告する";
+                alert("送信に失敗しました: " + e.message);
+            }
+        }
 
-        // Step 2: SNS共有ボタン（コミュニティ報告後）
-        $('#shareX').click(function (event) {
-            event.preventDefault();
-            openXIntent(savedGoal, savedComment);
-        });
+        function showSnsStep(items, detail) {
+            const app = document.getElementById("app");
+            app.innerHTML = `
+                <div class="card">
+                    <div class="success-msg">
+                        <div class="icon">✅</div>
+                        <p>コミュニティに報告しました！</p>
+                        <p style="font-size:13px; color:#888; margin-top:8px;">SNSにもシェアしませんか？</p>
+                    </div>
+                    <button class="btn-sns btn-x" onclick="shareX()">X（Twitter）にポスト</button>
+                    <button class="btn-sns btn-skip" onclick="closeApp()">閉じる</button>
+                </div>`;
 
-        $('#skipSns').click(function (event) {
-            event.preventDefault();
-            if (isLiffReady) {
+            // データを保存（Xシェア用）
+            window._reportItems = items;
+            window._reportDetail = detail;
+        }
+
+        function shareX() {
+            const items = window._reportItems || [];
+            const detail = window._reportDetail || "";
+
+            let text = "#今日の積み上げ\n\n";
+            if (items.length > 0) {
+                text += items.map(i => "・" + i).join("\n");
+            }
+            if (detail) {
+                text += "\n\n" + detail;
+            }
+            text += "\n\n#朝活 #朝活プラント";
+
+            const url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(text)
+                + "&url=" + encodeURIComponent("https://asa-plant.com/community-lp/");
+            window.open(url, "_blank");
+        }
+
+        function closeApp() {
+            if (isInClient) {
                 liff.closeWindow();
             } else {
                 window.close();
             }
-        });
+        }
 
-        // PC用: 直接SNS投稿
-        $('#pcShareX').click(function (event) {
-            event.preventDefault();
-            const goal = $('#pcForm textarea[name="goal"]').val();
-            const comment = $('#pcForm input[name="comment"]').val();
-            if (!goal.trim()) {
-                window.alert('「今日の積み上げ」を入力してください');
-                return;
-            }
-            openXIntent(goal, comment);
-        });
-    });
-</script>
+        function showError(msg) {
+            document.getElementById("app").innerHTML = `<div class="card"><div class="error-msg"><p>${msg}</p></div></div>`;
+        }
+
+        init();
+    </script>
 </body>
 </html>
